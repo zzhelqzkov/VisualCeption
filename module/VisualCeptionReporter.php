@@ -4,6 +4,7 @@
  */
 
 namespace Codeception\Module;
+use Codeception\Lib\ModuleContainer;
 
 class VisualCeptionReporter extends \Codeception\Module
 {
@@ -14,9 +15,9 @@ class VisualCeptionReporter extends \Codeception\Module
 
     private $referenceImageDir;
 
-    public function __construct($config)
+    public function __construct(ModuleContainer $moduleContainer, $config)
     {
-        $result = parent::__construct($config);
+        $result = parent::__construct($moduleContainer, $config);
         $this->init();
         return $result;
     }
