@@ -14,6 +14,7 @@ use Codeception\Module\ImageDeviationException;
  * @author Nils Langner <langner.nils@guj.de>
  * @author Torsten Franz
  * @author Sebastian Neubert
+ * @author Ray Romanov
  */
 class VisualCeption extends \Codeception\Module
 {
@@ -60,12 +61,6 @@ class VisualCeption extends \Codeception\Module
         $this->webDriverModule = $this->getModule("WebDriver");
         $this->webDriver = $this->webDriverModule->webDriver;
 
-        if ($this->webDriver->executeScript('return !window.jQuery;')) {
-            $jQueryString = file_get_contents(__DIR__ . "/jquery.js");
-            $this->webDriver->executeScript($jQueryString);
-            $this->webDriver->executeScript('jQuery.noConflict();');
-        }
-
         $this->test = $test;
     }
 
@@ -86,9 +81,9 @@ class VisualCeption extends \Codeception\Module
     public function seeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
         $excludeElements = (array)$excludeElements;
-        if (!$deviation && !is_numeric($deviation)) { 
-            $deviation = (float)$this->maximumDeviation;
-        }
+        
+        $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
+
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
         if (!is_null($deviationResult["deviationImage"])) {
@@ -120,9 +115,9 @@ class VisualCeption extends \Codeception\Module
     public function dontSeeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
         $excludeElements = (array)$excludeElements;
-        if (!$deviation && !is_numeric($deviation)) { 
-            $deviation = (float)$this->maximumDeviation;
-        }
+        
+        $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
+        
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
         if (!is_null($deviationResult["deviationImage"])) {
@@ -145,13 +140,17 @@ class VisualCeption extends \Codeception\Module
     /**
      * Hide an element to set the visibility to hidden
      *
-     * @param $elementSelector String of jQuery Element selector, set visibility to hidden
+     * @param $elementSelector String of CSS Element selector, set visibility to hidden
      */
     private function hideElement($elementSelector)
     {
         $this->webDriver->executeScript('
-            if( jQuery("' . $elementSelector . '").length > 0 ) {
-                jQuery( "' . $elementSelector . '" ).css("visibility","hidden");
+            var elements = [];
+            elements = document.querySelectorAll("' . $elementSelector . '");
+            if( elements.length > 0 ) {
+                for (var i = 0; i < elements.length; i++) {
+                    elements[i].style.visibility = "hidden";
+                }
             }
         ');
         $this->debug("set visibility of element '$elementSelector' to 'hidden'");
@@ -160,13 +159,17 @@ class VisualCeption extends \Codeception\Module
     /**
      * Show an element to set the visibility to visible
      *
-     * @param $elementSelector String of jQuery Element selector, set visibility to visible
+     * @param $elementSelector String of CSS Element selector, set visibility to visible
      */
     private function showElement($elementSelector)
     {
         $this->webDriver->executeScript('
-            if( jQuery("' . $elementSelector . '").length > 0 ) {
-                jQuery( "' . $elementSelector . '" ).css("visibility","visible");
+            var elements = [];
+            elements = document.querySelectorAll("' . $elementSelector . '");
+            if( elements.length > 0 ) {
+                for (var i = 0; i < elements.length; i++) {
+                    elements[i].style.visibility = "visible";
+                }
             }
         ');
         $this->debug("set visibility of element '$elementSelector' to 'visible'");
@@ -235,9 +238,7 @@ class VisualCeption extends \Codeception\Module
 
     /**
      * Find the position and proportion of a DOM element, specified by it's ID.
-     * The method inject the
-     * JQuery Framework and uses the "noConflict"-mode to get the width, height and offset params.
-     *
+     * Used native JavaScript.
      * @param string $elementId DOM ID of the element, which should be screenshotted
      * @return array coordinates of the element
      */
@@ -247,24 +248,18 @@ class VisualCeption extends \Codeception\Module
             $elementId = 'body';
         }
 
-        if ($this->webDriver->executeScript('return !window.jQuery;')) {
-            $jQueryString = file_get_contents(__DIR__ . "/jquery.js");
-            $this->webDriver->executeScript($jQueryString);
-            $this->webDriver->executeScript('jQuery.noConflict();');
-        }
-
         $imageCoords = array();
 
-        $elementExists = (bool)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).length > 0;');
+        $elementExists = (bool)$this->webDriver->executeScript('return document.querySelectorAll( "' . $elementId . '" ).length > 0;');
 
         if (!$elementExists) {
             throw new \Exception("The element you want to examine ('" . $elementId . "') was not found.");
         }
 
-        $imageCoords['offset_x'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).offset().left;');
-        $imageCoords['offset_y'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).offset().top;');
-        $imageCoords['width'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).width();');
-        $imageCoords['height'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).height();');
+        $imageCoords['offset_x'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetLeft;');
+        $imageCoords['offset_y'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetTop;');
+        $imageCoords['width'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetWidth;');
+        $imageCoords['height'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetHeight;');
 
         return $imageCoords;
     }
