@@ -42,14 +42,13 @@ To use the VisualCeption module you have to configure it.
 **Example Configuration**
 ```yaml
 modules:
-    enabled: [WebDriver, VisualCeption]
-    
-VisualCeption:
-    referenceImageDir: /home/codeception/referenceImages/ # Path to the reference folder (optional, standard is 
-                                                          # <datadir>/VisualCeption/)
-    maximumDeviation: 5                                   # deviation in percent
-    saveCurrentImageIfFailure: true                       # if true, VisualCeption saves the current
-                                                          # image in debug dir (default: false)
+    enabled: 
+        - WebDriver:
+            url: http://localhost.com
+            browser: firefox
+        - VisualCeption:
+            referenceImageDir: /home/codeception/referenceImages/ # Path to the reference folder (optional, standard is                 maximumDeviation: 5                                   # deviation in percent
+            saveCurrentImageIfFailure: true                       # if true, VisualCeption saves the current
 ```
 
 * **referenceImageDir** VisualCeption uses an "old" image for calculating the deviation. These images have to be stored in the system. This is the corresponding directory.
@@ -59,7 +58,7 @@ VisualCeption:
 
 ## Usage
 
-VisualCeption is really easy to use. There are only two methods that will be added to your WebGuy <code>seeVisualChanges</code> and <code>dontSeeVisualChanges</code>.
+VisualCeption is really easy to use. There are only two methods that will be added to $I <code>seeVisualChanges</code> and <code>dontSeeVisualChanges</code>.
 
 ```php
 $I->seeVisualChanges( "uniqueIdentifier1", "elementId1" );
