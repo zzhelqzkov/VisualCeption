@@ -17,7 +17,7 @@ use Codeception\Module\ImageDeviationException;
  * @author Sebastian Neubert
  * @author Ray Romanov
  */
-class VisualCeption extends \Codeception\Module
+class VisualCeption extends CodeceptionModule
 {
 
     private $referenceImageDir;
