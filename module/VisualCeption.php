@@ -192,7 +192,7 @@ class VisualCeption extends CodeceptionModule
      *
      * @throws \RuntimeException
      */
-    private function _initialize()
+    public function _initialize()
     {
         if (array_key_exists('maximumDeviation', $this->config)) {
             $this->maximumDeviation = $this->config["maximumDeviation"];
