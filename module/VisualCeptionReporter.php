@@ -4,9 +4,10 @@
  */
 
 namespace Codeception\Module;
+use Codeception\Module as CodeceptionModule;
 use Codeception\Lib\ModuleContainer;
 
-class VisualCeptionReporter extends \Codeception\Module
+class VisualCeptionReporter extends CodeceptionModule
 {
     private $failed = array();
     private $logFile;
@@ -15,14 +16,7 @@ class VisualCeptionReporter extends \Codeception\Module
 
     private $referenceImageDir;
 
-    public function __construct(ModuleContainer $moduleContainer, $config)
-    {
-        $result = parent::__construct($moduleContainer, $config);
-        $this->init();
-        return $result;
-    }
-
-    private function init()
+    public function _initialize()
     {
         $this->debug("Initializing VisualCeptionReport");
 
