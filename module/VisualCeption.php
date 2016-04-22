@@ -1,6 +1,7 @@
 <?php
 
 namespace Codeception\Module;
+use Codeception\Module as CodeceptionModule;
 use Codeception\Lib\ModuleContainer;
 use Codeception\Module\ImageDeviationException;
 
@@ -31,20 +32,6 @@ class VisualCeption extends \Codeception\Module
 
     private $webDriver = null;
     private $webDriverModule = null;
-
-    /**
-     * Create an object from VisualCeption Class
-     *
-     * @param ModuleContainer $moduleContainer
-     * @param array $config
-     * @return result
-     */
-    public function __construct(ModuleContainer $moduleContainer, $config)
-    {
-        $result = parent::__construct($moduleContainer, $config);
-        $this->init();
-        return $result;
-    }
 
     /**
      * Event hook before a test starts
@@ -208,7 +195,7 @@ class VisualCeption extends \Codeception\Module
      *
      * @throws \RuntimeException
      */
-    private function init()
+    public function _initialize()
     {
         if (array_key_exists('maximumDeviation', $this->config)) {
             $this->maximumDeviation = $this->config["maximumDeviation"];
