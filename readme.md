@@ -47,7 +47,9 @@ modules:
             url: http://localhost.com
             browser: firefox
         - VisualCeption:
-            referenceImageDir: /home/codeception/referenceImages/ # Path to the reference folder (optional, standard is                 maximumDeviation: 5                                   # deviation in percent
+            referenceImageDir: /home/codeception/referenceImages/ # Path to the reference folder (optional, standard is
+                                                                  # <datadir>/VisualCeption/)
+            maximumDeviation: 5                                   # deviation in percent
             saveCurrentImageIfFailure: true                       # if true, VisualCeption saves the current
 ```
 
