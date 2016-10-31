@@ -68,8 +68,8 @@ $I->dontSeeVisualChanges( "uniqueIdentifier2", "elementId2" );
 
 $I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2")] );
 
-$I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2")], 
-                          $deviation );
+$I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2") [, 
+                          $deviation]] );
 ```
 
 * **uniqueIdentifier** For comparing the images it is important to have a stable name. This is the corresponding name.
