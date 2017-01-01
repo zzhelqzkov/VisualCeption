@@ -6,16 +6,22 @@ php:
   - 5.5
 
 env:
- - CODECEPT_VERSION="1"
- - CODECEPT_VERSION="2"
-
+ - CODECEPT_VERSION="1" IMAGICK="imagick-3.3.0"
+ - CODECEPT_VERSION="1" IMAGICK="imagick"
+ - CODECEPT_VERSION="2" IMAGICK="imagick"
 matrix:
   exclude:
     - php: 5.3
-      env: CODECEPT_VERSION="2"
+      env: CODECEPT_VERSION="1" IMAGICK="imagick"
+    - php: 5.3
+      env: CODECEPT_VERSION="2" IMAGICK="imagick"
+    - php: 5.4
+      env: CODECEPT_VERSION="1" IMAGICK="imagick-3.3.0"
+    - php: 5.5
+      env: CODECEPT_VERSION="1" IMAGICK="imagick-3.3.0"
 
 before_script:
-  - printf "\n" | pecl install imagick
+  - printf "\n" | pecl install ${IMAGICK}
   - phantomjs --webdriver=4444 --ignore-ssl-errors=true >/dev/null 2>&1 &
   - cd test/integration/
   - mkdir tests/_log
