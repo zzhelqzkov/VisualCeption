@@ -250,8 +250,8 @@ class VisualCeption extends CodeceptionModule
 
         $imageCoords['offset_x'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).offset().left;');
         $imageCoords['offset_y'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).offset().top;');
-        $imageCoords['width'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).width();');
-        $imageCoords['height'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).height();');
+        $imageCoords['width'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).width() * window.devicePixelRatio;');
+        $imageCoords['height'] = (string)$this->webDriver->executeScript('return jQuery( "' . $elementId . '" ).height() * window.devicePixelRatio;');
 
         return $imageCoords;
     }
