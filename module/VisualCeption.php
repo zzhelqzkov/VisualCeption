@@ -174,7 +174,7 @@ class VisualCeption extends CodeceptionModule
 
         $compareResult = $this->compare($identifier);
 
-        $deviation = round($compareResult[1] * 100, 2);
+        $deviation = $compareResult[1] * 100;
 
         $this->debug("The deviation between the images is ". $deviation . " percent");
 
