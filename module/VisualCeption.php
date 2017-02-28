@@ -265,13 +265,8 @@ class VisualCeption extends CodeceptionModule
      */
     private function getScreenshotName($identifier)
     {
-        $caseName = str_replace(array('Cept.php', 'Cest.php'), '', $this->test->getFileName());
-
-        $search = array('/', '\\');
-        $replace = array('.', '.');
-        $caseName = str_replace($search, $replace, $caseName);
-
-        return $caseName . '.' . $identifier . '.png';
+        $signature = $this->test->getSignature();
+        return $signature . '.' . $identifier . '.png';
     }
 
     /**
