@@ -4,7 +4,11 @@
   "homepage": "https://github.com/Codeception/VisualCeption",
   "license": "Apache-2.0",
   "require": {
-    "php": ">=5.3.0"
+    "php": ">=5.4.0",
+    "ext-imagick": "*"
+  },
+  "require-dev": {
+    "codeception/codeception": "^2.2.0"
   },
   "autoload": {
     "classmap": ["module/"]
