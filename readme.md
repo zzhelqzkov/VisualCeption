@@ -1,5 +1,7 @@
 # VisualCeption
 
+![](http://www.thewebhatesme.com/wp-content/uploads/visualception.png)
+
 Visual regression tests for [Codeception](http://codeception.com/).
 
 [![Build Status](https://travis-ci.org/Codeception/VisualCeption.svg?branch=master)](https://travis-ci.org/DigitalProducts/codeception-module-visualception)
