@@ -2,7 +2,7 @@
 
 namespace Codeception\Module;
 
-class ImageDeviationException extends \PHPUnit_Framework_ExpectationFailedException
+class ImageDeviationException extends \PHPUnit_Framework_AssertionFailedError
 {
     private $expectedImage;
     private $currentImage;

@@ -2,6 +2,7 @@
 namespace Codeception\Module;
 
 use Codeception\Module as CodeceptionModule;
+use Codeception\Test\Descriptor;
 use RemoteWebDriver;
 
 /**
@@ -86,10 +87,10 @@ class VisualCeption extends CodeceptionModule
     }
 
 
-    public function _failed(\Codeception\TestCase $test, $fail)
+    public function _failed(\Codeception\TestInterface $test, $fail)
     {
         if ($fail instanceof ImageDeviationException) {
-            $this->failed[] = $fail;
+            $this->failed[Descriptor::getTestAsString($test)] = $fail;
         }
     }
 
@@ -139,21 +140,23 @@ class VisualCeption extends CodeceptionModule
         }
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
-        if (!is_null($deviationResult["deviationImage"])) {
-
-            // used for assertion counter in codeception / phpunit
-            $this->assertTrue(true);
-
-            if ($deviationResult["deviation"] <= $deviation) {
-                $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
-                $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
-
-                throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
-                    $this->getExpectedScreenshotPath($identifier),
-                    $this->getScreenshotPath($identifier),
-                    $compareScreenshotPath);
-            }
+        if (is_null($deviationResult["deviationImage"])) {
+            return;
         }
+
+        if ($deviationResult["deviation"] <= $deviation) {
+            $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
+            $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
+
+            throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $this->getExpectedScreenshotPath($identifier),
+                $this->getScreenshotPath($identifier),
+                $compareScreenshotPath);
+        }
+
+        // used for assertion counter in codeception / phpunit
+        $this->assertTrue(true);
+
     }
 
     /**
@@ -173,21 +176,22 @@ class VisualCeption extends CodeceptionModule
         }
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
-        if (!is_null($deviationResult["deviationImage"])) {
-
-            // used for assertion counter in codeception / phpunit
-            $this->assertTrue(true);
-
-            if ($deviationResult["deviation"] > $deviation) {
-                $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
-                $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
-
-                throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
-                    $this->getExpectedScreenshotPath($identifier),
-                    $this->getScreenshotPath($identifier),
-                    $compareScreenshotPath);
-            }
+        if (is_null($deviationResult["deviationImage"])) {
+            return;
         }
+
+
+        if ($deviationResult["deviation"] > $deviation) {
+            $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
+            $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
+
+            throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $this->getExpectedScreenshotPath($identifier),
+                $this->getScreenshotPath($identifier),
+                $compareScreenshotPath);
+        }
+        // used for assertion counter in codeception / phpunit
+        $this->assertTrue(true);
     }
 
     /**
@@ -300,7 +304,7 @@ class VisualCeption extends CodeceptionModule
     private function getScreenshotName($identifier)
     {
         $signature = $this->test->getSignature();
-        return $signature . '.' . $identifier . '.png';
+        return str_replace(':',  '_', $signature). '.' . $identifier . '.png';
     }
 
     /**

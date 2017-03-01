@@ -39,7 +39,7 @@ class TimeComparisonCest
 
         // the test has to be called twice for comparison on the travis server
         $I->amOnPage("/VisualCeption/seeVisualChanges.php");
-        $I->seeVisualChanges("hideTheIntro", "body", array("#intro"));
+        $I->dontSeeVisualChanges("hideTheIntro", "body", array("#intro"));
     }
 
     public function dontSeeVisualChangesAndHideElement (WebGuy $I, $scenario)
