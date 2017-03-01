@@ -3,21 +3,17 @@ language: php
 php:
   - 5.5
   - 5.6
+  - 7.0
+  - 7.1
+
 
 env:
- - CODECEPT_VERSION="2.1"
-
-matrix:
-  exclude:
-    - php: 5.3
-      env: CODECEPT_VERSION="2"
+ - IMAGICK="imagick-3.3.0"
+ - IMAGICK="imagick"
 
 before_script:
-  - printf "\n" | pecl install imagick
-  - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
-  - java -jar selenium-server-standalone-2.53.0.jar -port 4444 >/dev/null 2>&1 &
-  - cd test/integration/
-  - mkdir tests/_log
-  - php codecept${CODECEPT_VERSION}.phar build
+  - printf "\n" | pecl install ${IMAGICK}
+  - phantomjs --webdriver=4444 --ignore-ssl-errors=true >/dev/null 2>&1 &
+  - composer install
 
-script: php codecept${CODECEPT_VERSION}.phar run -d
+script: php vendor

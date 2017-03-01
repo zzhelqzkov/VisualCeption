@@ -4,6 +4,7 @@ namespace Codeception\Module;
 use Codeception\Module as CodeceptionModule;
 use Codeception\Lib\ModuleContainer;
 use Codeception\Module\ImageDeviationException;
+use RemoteWebDriver;
 
 /**
  * Class VisualCeption
@@ -30,7 +31,14 @@ class VisualCeption extends CodeceptionModule
 
     private $maximumDeviation = 0;
 
+    /**
+     * @var RemoteWebDriver
+     */
     private $webDriver = null;
+
+    /**
+     * @var WebDriver
+     */
     private $webDriverModule = null;
 
     /**
@@ -42,7 +50,10 @@ class VisualCeption extends CodeceptionModule
     public function _before(\Codeception\TestCase $test)
     {
         if (!$this->hasModule("WebDriver")) {
-            throw new \Exception("VisualCeption uses the WebDriver. Please be sure that this module is activated.");
+            throw new \Codeception\Exception\ConfigurationException("VisualCeption uses the WebDriver. Please ensure that this module is activated.");
+        }
+        if (!class_exists('Imagick')) {
+            throw new \Codeception\Exception\ConfigurationException("VisualCeption requires ImageMagick PHP Extension but it was not installed");
         }
 
         $this->webDriverModule = $this->getModule("WebDriver");
@@ -68,7 +79,7 @@ class VisualCeption extends CodeceptionModule
     public function seeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
         $excludeElements = (array)$excludeElements;
-        
+
         $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
 
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
@@ -102,9 +113,9 @@ class VisualCeption extends CodeceptionModule
     public function dontSeeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
         $excludeElements = (array)$excludeElements;
-        
+
         $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
-        
+
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
         if (!is_null($deviationResult["deviationImage"])) {
@@ -177,7 +188,7 @@ class VisualCeption extends CodeceptionModule
 
         $compareResult = $this->compare($identifier);
 
-        $deviation = round($compareResult[1] * 100, 2);
+        $deviation = $compareResult[1] * 100;
 
         $this->debug("The deviation between the images is ". $deviation . " percent");
 
@@ -260,13 +271,8 @@ class VisualCeption extends CodeceptionModule
      */
     private function getScreenshotName($identifier)
     {
-        $caseName = str_replace(['Cept.php', 'Cest.php'], '', $this->test->getFileName());
-
-        $search = array('/', '\\');
-        $replace = array('.', '.');
-        $caseName = str_replace($search, $replace, $caseName);
-
-        return $caseName . '.' . $identifier . '.png';
+        $signature = $this->test->getSignature();
+        return $signature . '.' . $identifier . '.png';
     }
 
     /**
