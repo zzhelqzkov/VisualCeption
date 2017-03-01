@@ -7,7 +7,9 @@
 
         <img src="http://www.thewebhatesme.com/wp-content/uploads/visualception.png" />
 
-        <?php foreach ($failedTests as $failedTest): ?>
+        <?php foreach ($failedTests as $name => $failedTest): ?>
+
+            <h1><?php echo $name ?></h1>
 
             <div class="deviationimage">
                 Deviation Image <br />
@@ -23,6 +25,8 @@
                 Current Image <br />
                 <img src='data:image/png;base64,<?php echo base64_encode(file_get_contents($failedTest->getCurrentImage())); ?>' />
             </div>
+
+            <hr>
 
 
         <?php endforeach; ?>

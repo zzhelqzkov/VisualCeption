@@ -1,9 +1,8 @@
 <?php
-
 namespace Codeception\Module;
+
 use Codeception\Module as CodeceptionModule;
-use Codeception\Lib\ModuleContainer;
-use Codeception\Module\ImageDeviationException;
+use Codeception\Test\Descriptor;
 use RemoteWebDriver;
 
 /**
@@ -20,7 +19,16 @@ use RemoteWebDriver;
  */
 class VisualCeption extends CodeceptionModule
 {
-
+    protected $config = [
+        'maximumDeviation' => 0,
+        'saveCurrentImageIfFailure' => true,
+        'referenceImageDir' => 'VisualCeption/',
+        'currentImageDir' => 'debug/visual/',
+        'report' => false,
+        'module' => 'WebDriver'
+    ];
+    
+    protected $saveCurrentImageIfFailure;
     private $referenceImageDir;
 
     /**
@@ -41,31 +49,74 @@ class VisualCeption extends CodeceptionModule
      */
     private $webDriverModule = null;
 
+    private $failed = array();
+    private $logFile;
+    private $templateVars = array();
+    private $templateFile;
+
+    public function _initialize()
+    {
+        $this->maximumDeviation = $this->config["maximumDeviation"];
+        $this->saveCurrentImageIfFailure = (boolean)$this->config["saveCurrentImageIfFailure"];
+        $this->referenceImageDir = codecept_data_dir() . $this->config["referenceImageDir"];
+
+        if (!is_dir($this->referenceImageDir)) {
+            $this->debug("Creating directory: $this->referenceImageDir");
+            @mkdir($this->referenceImageDir, 0777, true);
+        }
+        $this->currentImageDir = codecept_output_dir() . $this->config["currentImageDir"];
+        $this->_initVisualReport();
+    }
+
+    public function _afterSuite()
+    {
+        if (!$this->config['report']) {
+            return;
+        }
+        $failedTests = $this->failed;
+        $vars = $this->templateVars;
+        $referenceImageDir = $this->referenceImageDir;
+        $i = 0;
+
+        ob_start();
+        include_once $this->templateFile;
+        $reportContent = ob_get_contents();
+        ob_clean();
+
+        $this->debug("Trying to store file (".$this->logFile.")");
+        file_put_contents($this->logFile, $reportContent);
+    }
+
+
+    public function _failed(\Codeception\TestInterface $test, $fail)
+    {
+        if ($fail instanceof ImageDeviationException) {
+            $this->failed[Descriptor::getTestAsString($test)] = $fail;
+        }
+    }
+
+
     /**
      * Event hook before a test starts
      *
-     * @param \Codeception\TestCase $test
+     * @param \Codeception\TestInterface $test
      * @throws \Exception
      */
-    public function _before(\Codeception\TestCase $test)
+    public function _before(\Codeception\TestInterface $test)
     {
-        if (!$this->hasModule("WebDriver")) {
+        if (!$this->hasModule($this->config['module'])) {
             throw new \Codeception\Exception\ConfigurationException("VisualCeption uses the WebDriver. Please ensure that this module is activated.");
         }
         if (!class_exists('Imagick')) {
             throw new \Codeception\Exception\ConfigurationException("VisualCeption requires ImageMagick PHP Extension but it was not installed");
         }
 
-        $this->webDriverModule = $this->getModule("WebDriver");
+        $this->webDriverModule = $this->getModule($this->config['module']);
         $this->webDriver = $this->webDriverModule->webDriver;
 
         $this->test = $test;
     }
 
-    public function getReferenceImageDir()
-    {
-        return $this->referenceImageDir;
-    }
 
     /**
      * Compare the reference image with a current screenshot, identified by their indentifier name
@@ -84,21 +135,23 @@ class VisualCeption extends CodeceptionModule
 
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
-        if (!is_null($deviationResult["deviationImage"])) {
-
-            // used for assertion counter in codeception / phpunit
-            $this->assertTrue(true);
-
-            if ($deviationResult["deviation"] <= $deviation) {
-                $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
-                $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
-
-                throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
-                    $this->getExpectedScreenshotPath($identifier),
-                    $this->getScreenshotPath($identifier),
-                    $compareScreenshotPath);
-            }
+        if (is_null($deviationResult["deviationImage"])) {
+            return;
         }
+
+        if ($deviationResult["deviation"] <= $deviation) {
+            $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
+            $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
+
+            throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $this->getExpectedScreenshotPath($identifier),
+                $this->getScreenshotPath($identifier),
+                $compareScreenshotPath);
+        }
+
+        // used for assertion counter in codeception / phpunit
+        $this->assertTrue(true);
+
     }
 
     /**
@@ -118,21 +171,22 @@ class VisualCeption extends CodeceptionModule
 
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
-        if (!is_null($deviationResult["deviationImage"])) {
-
-            // used for assertion counter in codeception / phpunit
-            $this->assertTrue(true);
-
-            if ($deviationResult["deviation"] > $deviation) {
-                $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
-                $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
-
-                throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
-                    $this->getExpectedScreenshotPath($identifier),
-                    $this->getScreenshotPath($identifier),
-                    $compareScreenshotPath);
-            }
+        if (is_null($deviationResult["deviationImage"])) {
+            return;
         }
+
+
+        if ($deviationResult["deviation"] > $deviation) {
+            $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
+            $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
+
+            throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $this->getExpectedScreenshotPath($identifier),
+                $this->getScreenshotPath($identifier),
+                $compareScreenshotPath);
+        }
+        // used for assertion counter in codeception / phpunit
+        $this->assertTrue(true);
     }
 
     /**
@@ -144,7 +198,7 @@ class VisualCeption extends CodeceptionModule
     {
         $this->webDriver->executeScript('
             var elements = [];
-            elements = document.querySelectorAll("' . $elementSelector . '");
+            document.querySelectorAll("' . $elementSelector . '");
             if( elements.length > 0 ) {
                 for (var i = 0; i < elements.length; i++) {
                     elements[i].style.visibility = "hidden";
@@ -206,33 +260,6 @@ class VisualCeption extends CodeceptionModule
      *
      * @throws \RuntimeException
      */
-    public function _initialize()
-    {
-        if (array_key_exists('maximumDeviation', $this->config)) {
-            $this->maximumDeviation = $this->config["maximumDeviation"];
-        }
-
-        if (array_key_exists('saveCurrentImageIfFailure', $this->config)) {
-            $this->saveCurrentImageIfFailure = (boolean) $this->config["saveCurrentImageIfFailure"];
-        }
-
-        if (array_key_exists('referenceImageDir', $this->config)) {
-            $this->referenceImageDir = $this->config["referenceImageDir"];
-        } else {
-            $this->referenceImageDir = \Codeception\Configuration::dataDir() . 'VisualCeption/';
-        }
-
-        if (!is_dir($this->referenceImageDir)) {
-            $this->debug("Creating directory: $this->referenceImageDir");
-            mkdir($this->referenceImageDir, 0777, true);
-        }
-
-        if (array_key_exists('currentImageDir', $this->config)) {
-            $this->currentImageDir = $this->config["currentImageDir"];
-        }else{
-            $this->currentImageDir = \Codeception\Configuration::logDir() . 'debug/tmp/';
-        }
-    }
 
     /**
      * Find the position and proportion of a DOM element, specified by it's ID.
@@ -272,7 +299,7 @@ class VisualCeption extends CodeceptionModule
     private function getScreenshotName($identifier)
     {
         $signature = $this->test->getSignature();
-        return $signature . '.' . $identifier . '.png';
+        return str_replace(':',  '_', $signature). '.' . $identifier . '.png';
     }
 
     /**
@@ -287,7 +314,7 @@ class VisualCeption extends CodeceptionModule
     {
         $debugDir = $this->currentImageDir;
         if (!is_dir($debugDir)) {
-            $created = mkdir($debugDir, 0777, true);
+            $created = @mkdir($debugDir, 0777, true);
             if ($created) {
                 $this->debug("Creating directory: $debugDir");
             } else {
@@ -436,5 +463,24 @@ class VisualCeption extends CodeceptionModule
             $this->fail($e->getMessage() . ", image1 $image1 and image2 $image2.");
         }
         return $result;
+    }
+
+    protected function _initVisualReport()
+    {
+        if (!$this->config['report']) {
+            return;
+        }
+        $this->logFile = \Codeception\Configuration::logDir() . 'vcresult.html';
+
+        if (array_key_exists('templateVars', $this->config)) {
+            $this->templateVars = $this->config["templateVars"];
+        }
+
+        if (array_key_exists('templateFile', $this->config)) {
+            $this->templateFile = $this->config["templateFile"];
+        } else {
+            $this->templateFile = __DIR__ . "/report/template.php";
+        }
+        $this->debug( "VisualCeptionReporter: templateFile = " . $this->templateFile );
     }
 }
