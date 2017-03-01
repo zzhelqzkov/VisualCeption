@@ -5,13 +5,8 @@ php:
   - 7.0
   - 7.1
 
-
-env:
- - IMAGICK="imagick-3.3.0"
- - IMAGICK="imagick"
-
 before_script:
-  - printf "\n" | pecl install ${IMAGICK}
+  - printf "\n" | pecl install imagick
   - phantomjs --webdriver=4444 --ignore-ssl-errors=true >/dev/null 2>&1 &
   - composer install
   - php vendor/bin/codecept build -c test/integration/
