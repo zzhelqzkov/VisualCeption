@@ -1,9 +1,12 @@
 # VisualCeption
-Visual regression tests integrated in [Codeception](http://codeception.com/).
 
-[![Build Status](https://travis-ci.org/DigitalProducts/codeception-module-visualception.svg?branch=master)](https://travis-ci.org/DigitalProducts/codeception-module-visualception)
+Visual regression tests for [Codeception](http://codeception.com/).
+
+[![Build Status](https://travis-ci.org/Codeception/VisualCeption.svg?branch=master)](https://travis-ci.org/DigitalProducts/codeception-module-visualception)
 
 This module can be used to compare the current representation of a website element with an expected. It was written on the shoulders of codeception and integrates in a very easy way.
+
+**WARNING** This module can reduce the execution speed of acceptance tests. Use it only for visual regression test suite and not for regular end to end testing.
 
 **Example**
 
@@ -29,17 +32,20 @@ VisualCeption needs the following components to run:
 
 ## Installation
 
-### Bootstrap
-Add the module to <code>_bootstrap.php</code>. 
+Make sure you have php-imagick extension installed. Run `php -m` to see if imagick extension is enabled.
 
-<code>include_once "/path/to/module/VisualCeption.php";</code>
-<code>include_once "/path/to/module/ImageDeviationException.php";</code>
+Then add VisualCeption to composer.json:
+
+```
+composer require "codeception/visualception:*" --dev
+```
 
 ### Configuration
 
 To use the VisualCeption module you have to configure it. 
 
 **Example Configuration**
+
 ```yaml
 modules:
     enabled: 
@@ -47,16 +53,16 @@ modules:
             url: http://localhost.com
             browser: firefox
         - VisualCeption:
-            referenceImageDir: /home/codeception/referenceImages/ # Path to the reference folder (optional, standard is
-                                                                  # <datadir>/VisualCeption/)
             maximumDeviation: 5                                   # deviation in percent
             saveCurrentImageIfFailure: true                       # if true, VisualCeption saves the current
 ```
 
-* **referenceImageDir** VisualCeption uses an "old" image for calculating the deviation. These images have to be stored in the system. This is the corresponding directory.
-* **maximumDeviation** When comparing two images the deviation will be calculated. If this deviation is greater than the maximum deviation the test will fail.
+* **referenceImageDir** VisualCeption uses an "old" image for calculating the deviation. These images have to be stored in data directory (tests/_data) or be relative to it. Default: 'VisualCeption/'
+* **currentImageDir** temporary directory for current processed images. Relative to output dir`tests/_output`. Default: 'debug/visual/' 
+* **maximumDeviation** (default: 0)When comparing two images the deviation will be calculated. If this deviation is greater than the maximum deviation the test will fail.
 * **saveCurrentImageIfFailure** When the test fails, the current image will be saved too, so it's easier to change the reference image with this one. The image will appear beside the compare image with the prefix "current."
-
+* **report** When enabled an HTML report with diffs for failing tests is generated. Report is stored in `tests/_output/vcresult.html`. Default: false
+* **module** module responsible for browser interaction, default: WebDriver.
 
 ## Usage
 
@@ -80,6 +86,20 @@ $I->dontSeeVisualChanges("content", "div.content", array("#intro"));
 ```
 
 If you need more information about the test run please use the command line debug option (-d).
+
+## HTML Reports
+
+Enable Reports in config and use nice HTML output to see all failed visual tests with thair image diffs on a page:
+   
+```yaml
+modules:
+    enabled: 
+        - WebDriver:
+            url: http://localhost.com
+            browser: firefox
+        - VisualCeption:
+            report: true
+```
 
 ## Restriction
 
