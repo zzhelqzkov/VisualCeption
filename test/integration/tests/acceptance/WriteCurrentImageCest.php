@@ -11,23 +11,20 @@ class WriteCurrentImageCest
     public function writeCurrentImageFile(WebGuy $I, $scenario)
     {
         $I->amOnPage("/VisualCeption/seeVisualChanges.php");
-        $I->dontSeeVisualChanges("currentImageIdentifier", "#theblock");
+//        $I->dontSeeVisualChanges("currentImageIdentifier", "#theblock");
 
-        $I->wait(2);
+//        $I->wait(2);
 
         // the test has to be called twice for comparison on the travis server
         // expect failing the test
 
         $I->amOnPage("/VisualCeption/seeVisualChanges.php");
-        try
-        {
+        try {
             $I->dontSeeVisualChanges("currentImageIdentifier", "#theblock");
-        }
-        catch (ImageDeviationException $exception)
-        {
+        } catch (ImageDeviationException $exception) {
             $currentImagePath = $exception->getCurrentImage();
 
-            if (!is_file( $exception->getCurrentImage() )) {
+            if (!is_file($exception->getCurrentImage())) {
                 throw new \PHPUnit_Framework_ExpectationFailedException("The screenshot was not saved successfully.");
             }
         }

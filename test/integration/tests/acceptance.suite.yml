@@ -11,17 +11,14 @@
 class_name: WebGuy
 modules:
     enabled:
-        - WebDriver
-        - WebHelper
-        - VisualCeption
-    config:
-        WebDriver:
+        - WebDriver:
             url: http://www.thewebhatesme.com
             browser: phantomjs
             host: localhost
             port: 4444
             capabilities:
                 webStorageEnabled: true
-        VisualCeption:
+        - VisualCeption:
             maximumDeviation: 0
             saveCurrentImageIfFailure: true
+            report: true
