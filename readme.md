@@ -75,11 +75,14 @@ $I->seeVisualChanges( "uniqueIdentifier1", "elementId1" );
 $I->dontSeeVisualChanges( "uniqueIdentifier2", "elementId2" );
 
 $I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2")] );
+$I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2") [, 
+                          $deviation]] );
 ```
 
 * **uniqueIdentifier** For comparing the images it is important to have a stable name. This is the corresponding name.
 * **elementId** It is possible to only compare a special div container. The element id can be passed. *You can use all locators that can be used in jQuery*. 
 * **excludeElements** Optional parameter as string or an array of strings to exclude an element from the screenshot. Maybe there is an animated image in your test container, so you can ignore it. *You can use all locators that can be used in jQuery*.
+* **$deviation** Optional parameter as float use if it is necessary to establish deviation coefficient other than configuration.
 
 **Example Usage**
 ```php
