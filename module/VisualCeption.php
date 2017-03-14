@@ -90,7 +90,7 @@ class VisualCeption extends CodeceptionModule
     public function _failed(\Codeception\TestInterface $test, $fail)
     {
         if ($fail instanceof ImageDeviationException) {
-            $this->failed[Descriptor::getTestAsString($test)] = $fail;
+            $this->failed[$test->getSignature() . '.' . $fail->getIdentifier()] = $fail;
         }
     }
 
@@ -149,6 +149,7 @@ class VisualCeption extends CodeceptionModule
             $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
 
             throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $identifier,
                 $this->getExpectedScreenshotPath($identifier),
                 $this->getScreenshotPath($identifier),
                 $compareScreenshotPath);
@@ -186,6 +187,7 @@ class VisualCeption extends CodeceptionModule
             $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
 
             throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $identifier,
                 $this->getExpectedScreenshotPath($identifier),
                 $this->getScreenshotPath($identifier),
                 $compareScreenshotPath);
