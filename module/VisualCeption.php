@@ -196,16 +196,7 @@ class VisualCeption extends CodeceptionModule
      */
     private function hideElement($elementSelector)
     {
-        $this->webDriver->executeScript('
-            var elements = [];
-            document.querySelectorAll("' . $elementSelector . '");
-            if( elements.length > 0 ) {
-                for (var i = 0; i < elements.length; i++) {
-                    elements[i].style.visibility = "hidden";
-                }
-            }
-        ');
-        $this->debug("set visibility of element '$elementSelector' to 'hidden'");
+        $this->setVisibility($elementSelector, false);
     }
 
     /**
@@ -215,16 +206,22 @@ class VisualCeption extends CodeceptionModule
      */
     private function showElement($elementSelector)
     {
-        $this->webDriver->executeScript('
+        $this->setVisibility($elementSelector, true);
+    }
+
+    private function setVisibility($elementSelector, $isVisible)
+    {
+      $styleVisibility = $isVisible ? 'visible' : 'hidden';
+      $this->webDriver->executeScript('
             var elements = [];
             elements = document.querySelectorAll("' . $elementSelector . '");
             if( elements.length > 0 ) {
                 for (var i = 0; i < elements.length; i++) {
-                    elements[i].style.visibility = "visible";
+                    elements[i].style.visibility = "' . $styleVisibility . '";
                 }
             }
         ');
-        $this->debug("set visibility of element '$elementSelector' to 'visible'");
+        $this->debug("set visibility of element '$elementSelector' to '$styleVisibility'");
     }
 
     /**
