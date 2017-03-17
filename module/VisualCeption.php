@@ -381,8 +381,8 @@ class VisualCeption extends CodeceptionModule
     {
         foreach ($excludeElements as $element) {
             $this->hideElement($element);
+            $this->webDriverModule->waitForElementNotVisible($element);
         }
-        $this->webDriverModule->wait(1);
     }
 
     /**
@@ -394,8 +394,8 @@ class VisualCeption extends CodeceptionModule
     {
         foreach ($excludeElements as $element) {
             $this->showElement($element);
+            $this->webDriverModule->waitForElementVisible($element);
         }
-        $this->webDriverModule->wait(1);
     }
 
     /**
