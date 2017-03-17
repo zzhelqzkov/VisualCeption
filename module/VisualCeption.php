@@ -355,19 +355,17 @@ class VisualCeption extends CodeceptionModule
         if( !is_dir($screenShotDir)) {
             mkdir($screenShotDir, 0777, true);
         }
-        $screenshotPath = $screenShotDir . 'fullscreenshot.tmp.png';
+
         $elementPath = $this->getScreenshotPath($identifier);
 
         $this->hideElementsForScreenshot($excludeElements);
-        $this->webDriver->takeScreenshot($screenshotPath);
+        $screenshotBinary = $this->webDriver->takeScreenshot();
         $this->resetHideElementsForScreenshot($excludeElements);
 
         $screenShotImage = new \Imagick();
-        $screenShotImage->readImage($screenshotPath);
+        $screenShotImage->readimageblob($screenshotBinary);
         $screenShotImage->cropImage($coords['width'], $coords['height'], $coords['offset_x'], $coords['offset_y']);
         $screenShotImage->writeImage($elementPath);
-
-        unlink($screenshotPath);
 
         return $elementPath;
     }
