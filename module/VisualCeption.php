@@ -278,10 +278,12 @@ class VisualCeption extends CodeceptionModule
             throw new \Exception("The element you want to examine ('" . $elementId . "') was not found.");
         }
 
-        $imageCoords['offset_x'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetLeft;');
-        $imageCoords['offset_y'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetTop;');
-        $imageCoords['width'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetWidth;');
-        $imageCoords['height'] = (string)$this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).offsetHeight;');
+        $coords = $this->webDriver->executeScript('return document.querySelector( "' . $elementId . '" ).getBoundingClientRect();');
+
+        $imageCoords['offset_x'] = $coords['left'];
+        $imageCoords['offset_y'] = $coords['top'];
+        $imageCoords['width'] = $coords['width'];
+        $imageCoords['height'] = $coords['height'];
 
         return $imageCoords;
     }
