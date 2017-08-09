@@ -91,7 +91,7 @@ class VisualCeption extends CodeceptionModule
     public function _failed(\Codeception\TestInterface $test, $fail)
     {
         if ($fail instanceof ImageDeviationException) {
-            $this->failed[Descriptor::getTestAsString($test)] = $fail;
+            $this->failed[$test->getSignature() . '.' . $fail->getIdentifier()] = $fail;
         }
     }
 
@@ -144,6 +144,7 @@ class VisualCeption extends CodeceptionModule
             $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
 
             throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $identifier,
                 $this->getExpectedScreenshotPath($identifier),
                 $this->getScreenshotPath($identifier),
                 $compareScreenshotPath);
@@ -181,6 +182,7 @@ class VisualCeption extends CodeceptionModule
             $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
 
             throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+                $identifier,
                 $this->getExpectedScreenshotPath($identifier),
                 $this->getScreenshotPath($identifier),
                 $compareScreenshotPath);
@@ -349,19 +351,17 @@ class VisualCeption extends CodeceptionModule
         if( !is_dir($screenShotDir)) {
             mkdir($screenShotDir, 0777, true);
         }
-        $screenshotPath = $screenShotDir . 'fullscreenshot.tmp.png';
+
         $elementPath = $this->getScreenshotPath($identifier);
 
         $this->hideElementsForScreenshot($excludeElements);
-        $this->webDriver->takeScreenshot($screenshotPath);
+        $screenshotBinary = $this->webDriver->takeScreenshot();
         $this->resetHideElementsForScreenshot($excludeElements);
 
         $screenShotImage = new \Imagick();
-        $screenShotImage->readImage($screenshotPath);
+        $screenShotImage->readimageblob($screenshotBinary);
         $screenShotImage->cropImage($coords['width'], $coords['height'], $coords['offset_x'], $coords['offset_y']);
         $screenShotImage->writeImage($elementPath);
-
-        unlink($screenshotPath);
 
         return $elementPath;
     }
@@ -376,7 +376,9 @@ class VisualCeption extends CodeceptionModule
         foreach ($excludeElements as $element) {
             $this->hideElement($element);
         }
-        $this->webDriverModule->wait(1);
+        if (!empty($excludeElements)) {
+            $this->webDriverModule->waitForElementNotVisible(array_pop($excludeElements));
+        }
     }
 
     /**
@@ -389,7 +391,9 @@ class VisualCeption extends CodeceptionModule
         foreach ($excludeElements as $element) {
             $this->showElement($element);
         }
-        $this->webDriverModule->wait(1);
+        if (!empty($excludeElements)) {
+            $this->webDriverModule->waitForElementVisible(array_pop($excludeElements));
+        }
     }
 
     /**
