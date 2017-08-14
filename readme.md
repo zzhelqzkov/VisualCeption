@@ -16,10 +16,10 @@ This module can be used to compare the current representation of a website eleme
 
 ## How it works
 
-VisualCeption uses a combination of the "make a screenshot" feature in webdriver, imagick and jquery to compare visual elements on a website. This comparison is done in five steps:
+VisualCeption uses a combination of the "make a screenshot" feature in webdriver, imagick and native JavaScript to compare visual elements on a website. This comparison is done in five steps:
 
 1. **Take a screenshot** of the full page using webdriver.
-2. **Calculate the position** and size of the selected element using jquery.
+2. **Calculate the position** and size of the selected element using JavaScript.
 3. **Crop the element** out of the full screenshot using imagick.
 4. **Compare the element** with an older version of the screenshot that has been proofed as valid using imagick. If no previous image exists the current image will be used fur future comparions. As an effect of this approach the test has to be **run twice** before it works.
 5. If the deviation is too high **throw an exception** that is caught by Codeception.
@@ -75,13 +75,14 @@ $I->seeVisualChanges( "uniqueIdentifier1", "elementId1" );
 $I->dontSeeVisualChanges( "uniqueIdentifier2", "elementId2" );
 
 $I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2")] );
+
 $I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2") [, 
                           $deviation]] );
 ```
 
 * **uniqueIdentifier** For comparing the images it is important to have a stable name. This is the corresponding name.
-* **elementId** It is possible to only compare a special div container. The element id can be passed. *You can use all locators that can be used in jQuery*. 
-* **excludeElements** Optional parameter as string or an array of strings to exclude an element from the screenshot. Maybe there is an animated image in your test container, so you can ignore it. *You can use all locators that can be used in jQuery*.
+* **elementId** It is possible to only compare a special div container. The element id can be passed. *You can use CSS locators*. 
+* **excludeElements** Optional parameter as string or an array of strings to exclude an element from the screenshot. Maybe there is an animated image in your test container, so you can ignore it. *You can use CSS locators*.
 * **$deviation** Optional parameter as float use if it is necessary to establish deviation coefficient other than configuration.
 
 **Example Usage**
