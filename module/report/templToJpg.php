@@ -55,7 +55,6 @@
 		images = document.querySelectorAll('div > img')
 		for (var i = 0; i < images.length; i++) {
 			images[i].addEventListener('click', function(event) {
-				//window.open(this.getAttribute('src'));
 				var link = this.getAttribute('src');
 				var myWindow = window.open(link);
 				myWindow.document.write("<img src=" + link + ">");
