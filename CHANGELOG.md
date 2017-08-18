@@ -1,15 +1,11 @@
 # 1.0.0
 
-Изменения:
-* Удалена зависимость от jQuery, теперь скрытие элементов производится нативнымы методами JavaScript;
-* В описании конфигурации отчета;
-* Заменены таймауты на мягкие ожидания скрытия/появления элементов.
-* Некоторые ошибки, недочеты и пожелания.
-
-Добавлено:
-* В функциях seeVisualChanges и dontSeeVisualChanges добавлен необязательны параметр $deviation, значением которого можно передать пороговый % различия, для случаев если нужно указать % отличный от заданного в конфигурации;
-* Функция getReferenceImageDir которая возвращает полный путь к образцам изображений;
-* Шаблон отчета templToJpg.php, который гененрирует отчет, где изображения хранятся в формате Jpeg с 75% сжатием (можно изменить по желанию в самом шаблоне) для уменьшения объема итогового отчета различий.
+* **Removed jQuery**; switched to native JavaScript to hide elements
+* Configuration of reports changed
+* Hardcoded timeouts (`wait(1)`) replaced with corresponding waiter (`waitFor*`) methods
+* Added optional parameter `$deviation` to `seeVisualChanges` and `dontSeeVisualChanges`.
+* Added `getReferenceImageDir` method to return full path to reference images directory.
+* Added new report template `templToJpg.php`, 
 
 # 0.9.0
 
