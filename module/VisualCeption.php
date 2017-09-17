@@ -25,7 +25,8 @@ class VisualCeption extends CodeceptionModule
         'referenceImageDir' => 'VisualCeption/',
         'currentImageDir' => 'debug/visual/',
         'report' => false,
-        'module' => 'WebDriver'
+        'module' => 'WebDriver',
+        'fullScreenShot' => false
     ];
     
     protected $saveCurrentImageIfFailure;
@@ -357,20 +358,43 @@ class VisualCeption extends CodeceptionModule
     {
         $screenShotDir = \Codeception\Configuration::logDir() . 'debug/';
 
-        if( !is_dir($screenShotDir)) {
+        if (!is_dir($screenShotDir)) {
             mkdir($screenShotDir, 0777, true);
         }
 
         $elementPath = $this->getScreenshotPath($identifier);
-
-        $this->hideElementsForScreenshot($excludeElements);
-        $screenshotBinary = $this->webDriver->takeScreenshot();
-        $this->resetHideElementsForScreenshot($excludeElements);
-
         $screenShotImage = new \Imagick();
-        $screenShotImage->readimageblob($screenshotBinary);
-        $screenShotImage->cropImage($coords['width'], $coords['height'], $coords['offset_x'], $coords['offset_y']);
-        $screenShotImage->writeImage($elementPath);
+
+        if ($this->config["fullScreenShot"] == true) {
+            $height = $this->webDriver->executeScript("var ele=document.querySelector('html'); return ele.scrollHeight;");
+            $viewportHeight = $this->webDriver->executeScript("return window.innerHeight");
+
+            $itr = $height / $viewportHeight;
+
+            for ($i = 0; $i < intval($itr); $i++) {
+                $screenshotBinary = $this->webDriver->takeScreenshot();
+                $screenShotImage->readimageblob($screenshotBinary);
+                $this->webDriver->executeScript("window.scrollBy(0, {$viewportHeight});");
+            }
+
+            $screenshotBinary = $this->webDriver->takeScreenshot();
+            $screenShotImage->readimageblob($screenshotBinary);
+            $heightOffset = $viewportHeight - ($height - (intval($itr) * $viewportHeight));
+            $screenShotImage->cropImage(0, 0, 0, $heightOffset * 2);
+
+            $screenShotImage->resetIterator();
+            $fullShot = $screenShotImage->appendImages(true);
+            $fullShot->writeImage($elementPath);
+
+        } else {
+            $this->hideElementsForScreenshot($excludeElements);
+            $screenshotBinary = $this->webDriver->takeScreenshot();
+            $this->resetHideElementsForScreenshot($excludeElements);
+
+            $screenShotImage->readimageblob($screenshotBinary);
+            $screenShotImage->cropImage($coords['width'], $coords['height'], $coords['offset_x'], $coords['offset_y']);
+            $screenShotImage->writeImage($elementPath);
+        }
 
         return $elementPath;
     }
