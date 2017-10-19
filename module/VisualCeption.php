@@ -139,26 +139,7 @@ class VisualCeption extends CodeceptionModule
      */
     public function seeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
-        $excludeElements = (array)$excludeElements;
-
-        $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
-
-        $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
-
-        if (is_null($deviationResult["deviationImage"])) {
-            return;
-        }
-
-        if ($deviationResult["deviation"] <= $deviation) {
-            $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
-            $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
-
-            throw new ImageDeviationException("The deviation of the taken screenshot is too low (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
-                $identifier,
-                $this->getExpectedScreenshotPath($identifier),
-                $this->getScreenshotPath($identifier),
-                $compareScreenshotPath);
-        }
+        $this->compareVisualChanges($identifier, $elementID, $excludeElements, $deviation, true);
 
         // used for assertion counter in codeception / phpunit
         $this->assertTrue(true);
@@ -176,9 +157,17 @@ class VisualCeption extends CodeceptionModule
      */
     public function dontSeeVisualChanges($identifier, $elementID = null, $excludeElements = array(), $deviation = null)
     {
-        $excludeElements = (array)$excludeElements;
+        $this->compareVisualChanges($identifier, $elementID, $excludeElements, $deviation, false);
 
-        $deviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float)$deviation;
+        // used for assertion counter in codeception / phpunit
+        $this->assertTrue(true);
+    }
+
+    private function compareVisualChanges($identifier, $elementID, $excludeElements, $deviation, $seeChanges)
+    {
+        $excludeElements = (array) $excludeElements;
+
+        $maximumDeviation = (!$deviation && !is_numeric($deviation)) ? $this->maximumDeviation : (float) $deviation;
 
         $deviationResult = $this->getDeviation($identifier, $elementID, $excludeElements);
 
@@ -186,19 +175,32 @@ class VisualCeption extends CodeceptionModule
             return;
         }
 
-
-        if ($deviationResult["deviation"] > $deviation) {
+        if ($seeChanges && $deviationResult["deviation"] <= $maximumDeviation ||
+                !$seeChanges && $deviationResult["deviation"] > $maximumDeviation) {
             $compareScreenshotPath = $this->getDeviationScreenshotPath($identifier);
             $deviationResult["deviationImage"]->writeImage($compareScreenshotPath);
 
-            throw new ImageDeviationException("The deviation of the taken screenshot is too hight (" . $deviationResult["deviation"] . "%).\nSee $compareScreenshotPath for a deviation screenshot.",
+            throw $this->createImageDeviationException($identifier, $compareScreenshotPath, $deviationResult["deviation"], $seeChanges);
+        }
+    }
+
+    private function createImageDeviationException($identifier, $compareScreenshotPath, $deviation, $seeChanges)
+    {
+        if ($seeChanges) {
+            $message = "The deviation of the taken screenshot is too low";
+        } else {
+            $message = "The deviation of the taken screenshot is too hight";
+        }
+
+        $message .=  " (" . $deviation . "%).\nSee $compareScreenshotPath for a deviation screenshot.";
+
+        return new ImageDeviationException(
+                $message,
                 $identifier,
                 $this->getExpectedScreenshotPath($identifier),
                 $this->getScreenshotPath($identifier),
-                $compareScreenshotPath);
-        }
-        // used for assertion counter in codeception / phpunit
-        $this->assertTrue(true);
+                $compareScreenshotPath
+        );
     }
 
     /**
