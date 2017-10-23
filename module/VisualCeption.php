@@ -50,6 +50,11 @@ class VisualCeption extends CodeceptionModule
      */
     private $webDriverModule = null;
 
+    /**
+     * @var Utils
+     */
+    private $utils;
+
     private $failed = array();
     private $logFile;
     private $templateVars = array();
@@ -57,6 +62,8 @@ class VisualCeption extends CodeceptionModule
 
     public function _initialize()
     {
+        $this->utils = new Utils();
+
         $this->maximumDeviation = $this->config["maximumDeviation"];
         $this->saveCurrentImageIfFailure = (boolean)$this->config["saveCurrentImageIfFailure"];
         $this->referenceImageDir = (file_exists($this->config["referenceImageDir"]) ? "" : codecept_data_dir()) . $this->config["referenceImageDir"];
@@ -312,7 +319,7 @@ class VisualCeption extends CodeceptionModule
     private function getScreenshotName($identifier)
     {
         $signature = $this->test->getSignature();
-        return str_replace(':',  '_', $signature). '.' . $identifier . '.png';
+        return $this->utils->getTestFileName($signature, $identifier);
     }
 
     /**
