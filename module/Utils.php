@@ -1,6 +1,6 @@
 <?php
 
-namespace Codeception\VisualCeption\Module;
+namespace Codeception\Module\VisualCeption;
 
 class Utils
 {

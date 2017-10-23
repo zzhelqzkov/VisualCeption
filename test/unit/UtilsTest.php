@@ -1,9 +1,9 @@
 <?php
 
-namespace VisualCeption\Test\Unit;
+namespace Codeception\Module\VisualCeption\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Codeception\VisualCeption\Module\Utils;
+use Codeception\Module\VisualCeption\Utils;
 
 class UtilsTest extends TestCase
 {

@@ -4,6 +4,7 @@ namespace Codeception\Module;
 use Codeception\Module as CodeceptionModule;
 use Codeception\Test\Descriptor;
 use RemoteWebDriver;
+use Codeception\Module\VisualCeption\Utils;
 
 /**
  * Class VisualCeption
