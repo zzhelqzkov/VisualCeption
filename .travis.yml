@@ -11,4 +11,6 @@ before_script:
   - composer install
   - php vendor/bin/codecept build -c test/integration/
 
-script: php vendor/bin/codecept run -c test/integration/
+script:
+  - php vendor/bin/codecept run -c test/integration/
+  - vendor/bin/phpunit test/unit/
