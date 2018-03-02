@@ -1,8 +1,9 @@
 <?php
 
 namespace Codeception\Module;
+use PHPUnit\Framework\AssertionFailedError;
 
-class ImageDeviationException extends \PHPUnit_Framework_AssertionFailedError
+class ImageDeviationException extends AssertionFailedError
 {
     private $identifier;
     private $expectedImage;
