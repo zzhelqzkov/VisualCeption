@@ -1,3 +1,10 @@
+# 1.0.1
+
+* Added fullpage screenshot for Chrome and Firefox (new configuration option `fullScreenShot`)
+* Fixed using namespaces on Windows
+* Fixed compatibility with Codeception 2.4
+* Removed duplicity code
+
 # 1.0.0
 
 * **Removed jQuery**; switched to native JavaScript to hide elements
