@@ -57,27 +57,28 @@ modules:
         - VisualCeption:
             maximumDeviation: 5                                   # deviation in percent
             saveCurrentImageIfFailure: true                       # if true, VisualCeption saves the current
+            fullScreenShot: true                                  # fullpage screenshot
 ```
 
-* **referenceImageDir** VisualCeption uses an "old" image for calculating the deviation. These images have to be stored in data directory (tests/_data) or be relative to it. Default: 'VisualCeption/'
-* **currentImageDir** temporary directory for current processed images. Relative to output dir`tests/_output`. Default: 'debug/visual/' 
-* **maximumDeviation** (default: 0)When comparing two images the deviation will be calculated. If this deviation is greater than the maximum deviation the test will fail.
-* **saveCurrentImageIfFailure** When the test fails, the current image will be saved too, so it's easier to change the reference image with this one. The image will appear beside the compare image with the prefix "current."
-* **report** When enabled an HTML report with diffs for failing tests is generated. Report is stored in `tests/_output/vcresult.html`. Default: false
-* **module** module responsible for browser interaction, default: WebDriver.
+* **referenceImageDir** (default: `'VisualCeption/'`) VisualCeption uses an "old" image for calculating the deviation. These images have to be stored in data directory (tests/_data) or be relative to it.
+* **currentImageDir** (default: `'debug/visual/'`) temporary directory for current processed images. Relative to output dir `tests/_output`.
+* **maximumDeviation** (default: `0`) When comparing two images the deviation will be calculated. If this deviation is greater than the maximum deviation the test will fail.
+* **saveCurrentImageIfFailure** (default: `true`) When the test fails, the current image will be saved too, so it's easier to change the reference image with this one. The image will appear beside the compare image with the prefix "current."
+* **report** (default: `false`) When enabled an HTML report with diffs for failing tests is generated. Report is stored in `tests/_output/vcresult.html`.
+* **module** (default: `'WebDriver'`) module responsible for browser interaction, default: WebDriver.
+* **fullScreenShot** (default: `false`) fullpage screenshot for Chrome and Firefox
 
 ## Usage
 
 VisualCeption is really easy to use. There are only two methods that will be added to $I <code>seeVisualChanges</code> and <code>dontSeeVisualChanges</code>.
 
 ```php
-$I->seeVisualChanges( "uniqueIdentifier1", "elementId1" );
-$I->dontSeeVisualChanges( "uniqueIdentifier2", "elementId2" );
+$I->seeVisualChanges("uniqueIdentifier1", "elementId1");
+$I->dontSeeVisualChanges("uniqueIdentifier2", "elementId2");
 
-$I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2")] );
+$I->dontSeeVisualChanges("uniqueIdentifier3", "elementId3", array("excludeElement1", "excludeElement2"));
 
-$I->dontSeeVisualChanges( "uniqueIdentifier3", "elementId3" [, array("excludeElement1", "excludeElement2") [, 
-                          $deviation]] );
+$I->dontSeeVisualChanges("uniqueIdentifier3", "elementId3", array("excludeElement1", "excludeElement2"), $deviation]);
 ```
 
 * **uniqueIdentifier** For comparing the images it is important to have a stable name. This is the corresponding name.
