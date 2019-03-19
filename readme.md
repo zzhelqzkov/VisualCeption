@@ -96,7 +96,7 @@ If you need more information about the test run please use the command line debu
 
 ## HTML Reports
 
-Enable Reports in config and use nice HTML output to see all failed visual tests with thair image diffs on a page:
+Enable Reports in config and use nice HTML output to see all failed visual tests with their image diffs on a page:
    
 ```yaml
 modules:
