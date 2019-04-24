@@ -1,11 +1,17 @@
 <?php
+
+// prepare
+$fileToDelete = __DIR__ . '/../_data/VisualCeption/SimpleCept.SimpleBlock.png';
+if (file_exists($fileToDelete)) {
+  unlink($fileToDelete);
+}
+
+// test
 $I = new WebGuy($scenario);
 $I->wantTo('check visual changes inside element');
 
-$I->amOnPage("/VisualCeption/seeVisualChanges.php");
+$I->amOnPage("/staticTime.html");
 $I->seeVisualChanges("SimpleBlock", "#theblock");
 
-// the test has to be called twice for comparison on the travis server
-$I->wait(2);
-$I->amOnPage("/VisualCeption/seeVisualChanges.php");
+$I->amOnPage("/staticTimeChanged.html");
 $I->seeVisualChanges("SimpleBlock", "#theblock");

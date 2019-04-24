@@ -10,6 +10,7 @@ services:
       - ./:/project
     depends_on:
       - phantomjs
+      - httpserver
     network_mode: host
   phantomjs:
     build:
@@ -18,3 +19,12 @@ services:
     command: bash -c 'phantomjs --webdriver=4444 --ignore-ssl-errors=true'
     ports:
       - '4444:4444'
+  httpserver:
+    build:
+      context: ./docker
+      dockerfile: httpServer.docker
+    command: sh -c 'cd /public && http-server'
+    volumes:
+      - ./test/integration/html:/public
+    ports:
+      - '8080:8080'
