@@ -10,15 +10,8 @@ class WriteCurrentImageCest
      */
     public function writeCurrentImageFile(WebGuy $I, $scenario)
     {
-        $I->amOnPage("/VisualCeption/seeVisualChanges.php");
-//        $I->dontSeeVisualChanges("currentImageIdentifier", "#theblock");
-
-//        $I->wait(2);
-
-        // the test has to be called twice for comparison on the travis server
         // expect failing the test
-
-        $I->amOnPage("/VisualCeption/seeVisualChanges.php");
+        $I->amOnPage("/staticTimeChanged.html");
         try {
             $I->dontSeeVisualChanges("currentImageIdentifier", "#theblock");
         } catch (ImageDeviationException $exception) {
