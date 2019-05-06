@@ -5,6 +5,7 @@ use Codeception\Module as CodeceptionModule;
 use Codeception\Test\Descriptor;
 use RemoteWebDriver;
 use Codeception\Module\VisualCeption\Utils;
+use Codeception\TestInterface;
 
 /**
  * Class VisualCeption
@@ -56,6 +57,16 @@ class VisualCeption extends CodeceptionModule
      */
     private $utils;
 
+    /**
+     * @var TestInterface
+     */
+    private $test;
+
+    /**
+     * @var string
+     */
+    private $currentEnvironment;
+
     private $failed = array();
     private $logFile;
     private $templateVars = array();
@@ -74,6 +85,11 @@ class VisualCeption extends CodeceptionModule
             @mkdir($this->referenceImageDir, 0777, true);
         }
         $this->currentImageDir = codecept_output_dir() . $this->config["currentImageDir"];
+    }
+
+    public function _beforeSuite($settings = [])
+    {
+        $this->currentEnvironment = key_exists('current_environment', $settings) ? $settings['current_environment'] : null;
         $this->_initVisualReport();
     }
 
@@ -88,19 +104,19 @@ class VisualCeption extends CodeceptionModule
         $i = 0;
 
         ob_start();
-        include_once $this->templateFile;
+        include $this->templateFile;
         $reportContent = ob_get_contents();
-        ob_clean();
+        ob_end_clean();
 
         $this->debug("Trying to store file (".$this->logFile.")");
         file_put_contents($this->logFile, $reportContent);
     }
 
 
-    public function _failed(\Codeception\TestInterface $test, $fail)
+    public function _failed(TestInterface $test, $fail)
     {
         if ($fail instanceof ImageDeviationException) {
-            $this->failed[$test->getSignature() . '.' . $fail->getIdentifier()] = $fail;
+            $this->failed[Descriptor::getTestSignatureUnique($test) . '.' . $fail->getIdentifier()] = $fail;
         }
     }
 
@@ -108,10 +124,10 @@ class VisualCeption extends CodeceptionModule
     /**
      * Event hook before a test starts
      *
-     * @param \Codeception\TestInterface $test
+     * @param TestInterface $test
      * @throws \Exception
      */
-    public function _before(\Codeception\TestInterface $test)
+    public function _before(TestInterface $test)
     {
         if (!$this->hasModule($this->config['module'])) {
             throw new \Codeception\Exception\ConfigurationException("VisualCeption uses the WebDriver. Please ensure that this module is activated.");
@@ -319,8 +335,7 @@ class VisualCeption extends CodeceptionModule
      */
     private function getScreenshotName($identifier)
     {
-        $signature = $this->test->getSignature();
-        return $this->utils->getTestFileName($signature, $identifier);
+        return $this->utils->getTestFileName($this->test, $identifier);
     }
 
     /**
@@ -516,7 +531,11 @@ class VisualCeption extends CodeceptionModule
         if (!$this->config['report']) {
             return;
         }
-        $this->logFile = \Codeception\Configuration::logDir() . 'vcresult.html';
+        $filename = 'vcresult';
+        if ($this->currentEnvironment) {
+            $filename .= '.' . $this->currentEnvironment;
+        }
+        $this->logFile = \Codeception\Configuration::logDir() . $filename . '.html';
 
         if (array_key_exists('templateVars', $this->config)) {
             $this->templateVars = $this->config["templateVars"];
