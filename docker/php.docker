@@ -9,7 +9,7 @@ RUN docker-php-ext-configure zip --with-libzip=/usr/include \
     && docker-php-ext-install zip
 
 # composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-	&& /usr/local/bin/composer global require hirak/prestissimo \
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --version=1.0.0 --filename=composer \
+	&& /usr/local/bin/composer global require hirak/prestissimo "0.3.10" \
 	&& rm -rf /root/.composer/cache/*
 
