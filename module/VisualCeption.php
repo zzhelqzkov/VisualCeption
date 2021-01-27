@@ -129,17 +129,36 @@ class VisualCeption extends CodeceptionModule
      */
     public function _before(TestInterface $test)
     {
-        if (!$this->hasModule($this->config['module'])) {
+        $browserModule = $this->getBrowserModule();
+
+        if ($browserModule === null) {
             throw new \Codeception\Exception\ConfigurationException("VisualCeption uses the WebDriver. Please ensure that this module is activated.");
         }
         if (!class_exists('Imagick')) {
             throw new \Codeception\Exception\ConfigurationException("VisualCeption requires ImageMagick PHP Extension but it was not installed");
         }
 
-        $this->webDriverModule = $this->getModule($this->config['module']);
+        $this->webDriverModule = $browserModule;
         $this->webDriver = $this->webDriverModule->webDriver;
 
         $this->test = $test;
+    }
+
+    protected function getBrowserModule() {
+        if ($this->hasModule($this->config['module'])) {
+            return $this->getModule($this->config['module']);
+        }
+
+        foreach($this->getModules() as $module) {
+            if($module === $this) {
+                continue;
+            }
+            if($module instanceof WebDriver) {
+                return $module;
+            }
+        }
+
+        return null;
     }
     
     /**
