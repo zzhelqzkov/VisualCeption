@@ -1,3 +1,14 @@
+# 1.0.3
+* Fix incorrectly cropped full page screenshots
+* Remove test dependency from www.thewebhatesme.com to local http server
+* Move CI tests to GitHub actions
+* Fix problems with getting imageCoords in IE11
+* Fix elements hiding behavior for full screenshot
+* Allow to use any module which inherits from WebDriver
+
+# 1.0.2
+* Replaces URL for images with locally provided ones
+
 # 1.0.1
 
 * Added fullpage screenshot for Chrome and Firefox (new configuration option `fullScreenShot`)
